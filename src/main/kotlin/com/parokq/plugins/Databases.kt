@@ -72,7 +72,7 @@ fun Application.configureDatabases() {
  * your application shuts down by calling [Connection.close]
  * */
 fun Application.connectToPostgres(embedded: Boolean): Connection {
-    Class.forName("org.postgresql.Driver")
+    Class.forName("org.h2.Driver")
     if (embedded) {
         return DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "root", "")
     } else {
@@ -82,4 +82,4 @@ fun Application.connectToPostgres(embedded: Boolean): Connection {
 
         return DriverManager.getConnection(url, user, password)
     }
-}
+}//docker run -e DATABASE_SERVER=jdbc:h2:mem:test -dp 8080:8580 todoapi

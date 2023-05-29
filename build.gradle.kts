@@ -57,3 +57,11 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
+
+
+task("do shit"){
+    //docker build .
+    //docker images -> take new
+    //docker run -e DATABASE_SERVER=jdbc:h2:mem:test -dp 8080:8580 36f1c123233a
+    println("im doing")
+}
