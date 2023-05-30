@@ -3,12 +3,20 @@ package com.parokq.plugins
 import com.parokq.domain.entity.authentication.InfoResponse
 import com.parokq.domain.entity.authentication.LoginResponse
 import com.parokq.domain.entity.authentication.RegistrationRequest
+import io.ktor.serialization.gson.*
 import io.ktor.server.routing.*
 import io.ktor.server.response.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 
 fun Application.configureAuthenticationRouting() {
+    install(ContentNegotiation) {
+        gson {
+            setPrettyPrinting()
+        }
+    }
+
     routing {
         get("auth/login") {
             val login = call.request.queryParameters["login"]?.toLongOrNull() ?: return@get
@@ -26,12 +34,13 @@ fun Application.configureAuthenticationRouting() {
         }
         post("auth/registration") {
             val request = call.receive<RegistrationRequest>()
+            println(request)
 
             //todo add logic
             call.respond(
                 InfoResponse(
                     success = true,
-                    message = null
+                    message = request.toString()
                 )
             )
         }
