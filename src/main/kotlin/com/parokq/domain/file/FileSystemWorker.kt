@@ -21,8 +21,12 @@ class FileSystemWorker {
         fos.close()
     }
 
-    fun readPicture(id: Long): File {
+    fun getPicture(id: Long): File {
         return File(id.toPictureName())
+    }
+
+    fun getSong(id: Long): File {
+        return File(id.toSongName())
     }
 
     private fun Long.toPictureName(): String = PICTURES_DIR + "pic_$this.png"
@@ -49,5 +53,5 @@ fun main() {
     val bytes = fileToByteArray(filePath)
     val stringAra = bytes.toString()
     worker.addPicture(1L, bytes)
-    val a = worker.readPicture(1L)
+    val a = worker.getPicture(1L)
 }

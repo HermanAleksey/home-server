@@ -2,7 +2,8 @@ package com.parokq
 
 import com.parokq.plugins.configureDatabases
 import com.parokq.plugins.configureAuthenticationRouting
-import com.parokq.plugins.configureSecurity
+import com.parokq.plugins.configurePictureRouting
+import com.parokq.plugins.configureSongRouting
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -14,6 +15,7 @@ fun main() {
 
 fun Application.module() {
     configureDatabases()
-    configureSecurity()
     configureAuthenticationRouting()
+    configurePictureRouting()
+    configureSongRouting()
 }
