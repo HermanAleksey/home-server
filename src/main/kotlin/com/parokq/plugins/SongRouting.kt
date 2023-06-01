@@ -12,11 +12,12 @@ import io.ktor.server.plugins.contentnegotiation.*
 fun Application.configureSongRouting() {
     val worker = FileSystemWorker()
 
-    install(ContentNegotiation) {
-        gson {
-            setPrettyPrinting()
-        }
-    }
+        // do not install plugin twice
+//    install(ContentNegotiation) {
+//        gson {
+//            setPrettyPrinting()
+//        }
+//    }
 
     routing {
         get("song1") {
@@ -38,14 +39,22 @@ fun Application.configureSongRouting() {
             val id = 1L//call.request.queryParameters["id"]?.toLongOrNull() ?: return@get
 
             val song = worker.getSong(id)
-            call.response.header(
-                HttpHeaders.ContentDisposition,
-                ContentDisposition.Attachment.withParameter(
-                    key = ContentDisposition.Parameters.FileName,
-                    value = song.name
-                ).toString()
-            )
+            call.response.apply {
+                header(
+                    HttpHeaders.ContentDisposition,
+                    ContentDisposition.Attachment.withParameter(
+                        key = ContentDisposition.Parameters.FileName,
+                        value = song.name
+                    ).toString()
+                )
+                    //todo try headers to convert into stream instead of loading file
+//                header(
+//                    HttpHeaders.ContentType,
+//                    ContentType.Audio.MP4.toString()
+//                )
+            }
 
+            //this let you load mp3 file
             call.respondFile(song)
         }
 

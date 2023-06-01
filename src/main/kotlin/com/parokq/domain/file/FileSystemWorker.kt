@@ -32,10 +32,10 @@ class FileSystemWorker {
     private fun Long.toPictureName(): String = PICTURES_DIR + "pic_$this.png"
     //todo or remove there since server doesnt need to know types.
 
-    private fun Long.toSongName(): String = SONGS_DIR + "song_$this"//todo add .type
+    private fun Long.toSongName(): String = SONGS_DIR + "song_$this.mp3"//todo add .type
 
     companion object {
-        private const val RESOURCES_DIR = "./storage"
+        private const val RESOURCES_DIR = "storage"
         const val PICTURES_DIR = "$RESOURCES_DIR/pictures/"
         const val SONGS_DIR = "$RESOURCES_DIR/songs/"
     }
