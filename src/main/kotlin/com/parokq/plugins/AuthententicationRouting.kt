@@ -1,8 +1,6 @@
 package com.parokq.plugins
 
-import com.parokq.domain.entity.authentication.InfoResponse
-import com.parokq.domain.entity.authentication.LoginResponse
-import com.parokq.domain.entity.authentication.RegistrationRequest
+import com.parokq.domain.entity.authentication.*
 import io.ktor.serialization.gson.*
 import io.ktor.server.routing.*
 import io.ktor.server.response.*
@@ -19,8 +17,7 @@ fun Application.configureAuthenticationRouting() {
 
     routing {
         get("auth/login") {
-            val login = call.request.queryParameters["login"]?.toLongOrNull() ?: return@get
-            val password = call.request.queryParameters["password"]?.toLongOrNull() ?: return@get
+            val request = call.receive<LoginRequest>()
 
             //todo add processing
             //return LoginResponse
@@ -34,6 +31,7 @@ fun Application.configureAuthenticationRouting() {
         }
         post("auth/registration") {
             val request = call.receive<RegistrationRequest>()
+
             println(request)
 
             //todo add logic
@@ -44,8 +42,8 @@ fun Application.configureAuthenticationRouting() {
                 )
             )
         }
-        get("auth/request_password_restore") {
-            val login = call.request.queryParameters["login"]?.toLongOrNull() ?: return@get
+        get("auth/restore") {
+            val request = call.receive<RestoreRequest>()
 
             //todo add logic
             call.respond(
@@ -55,9 +53,8 @@ fun Application.configureAuthenticationRouting() {
                 )
             )
         }
-        get("auth/verify_code") {
-            val login = call.request.queryParameters["login"]?.toLongOrNull() ?: return@get
-            val code = call.request.queryParameters["code"]?.toLongOrNull() ?: return@get
+        get("auth/code") {
+            val request = call.receive<VerifyCodeRequest>()
 
             //todo add logic
             call.respond(
@@ -67,9 +64,8 @@ fun Application.configureAuthenticationRouting() {
                 )
             )
         }
-        get("auth/reset_password") {
-            val login = call.request.queryParameters["login"]?.toLongOrNull() ?: return@get
-            val newPassword = call.receive<String>()
+        post("auth/reset") {
+            val newPassword = call.receive<ResetPasswordRequest>()
 
             //todo add logic
             call.respond(
