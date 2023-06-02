@@ -43,7 +43,7 @@ fun Application.configureAuthenticationRouting() {
             )
         }
         get("auth/restore") {
-            val request = call.receive<RestoreRequest>()
+            val request = call.receive<RestorePasswordRequest>()
 
             //todo add logic
             call.respond(

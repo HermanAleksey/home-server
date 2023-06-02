@@ -1,5 +1,5 @@
 package com.parokq.domain.entity.authentication
 
-data class RestoreRequest(
+data class RestorePasswordRequest(
     val email: String,
 )
