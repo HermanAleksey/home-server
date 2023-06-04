@@ -9,12 +9,6 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 
 fun Application.configureAuthenticationRouting() {
-    install(ContentNegotiation) {
-        gson {
-            setPrettyPrinting()
-        }
-    }
-
     routing {
         get("auth/login") {
             val request = call.receive<LoginRequest>()
