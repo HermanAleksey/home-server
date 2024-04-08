@@ -2,7 +2,6 @@ package com.parokq.plugins.chat
 
 import com.parokq.plugins.chat.UserIdCounter.generateUserId
 import com.parokq.plugins.chat.ext.deserialize
-import com.parokq.plugins.chat.ext.sendToAll
 import com.parokq.plugins.chat.ext.serialize
 import com.parokq.plugins.chat.model.Connection
 import com.parokq.plugins.chat.model.dto.MessageDataDto
@@ -86,9 +85,20 @@ fun Application.configureChatWSRouting() {
             } finally {
                 println("Disconnecting user: $thisUserId")
                 val discardMessage = getDisconnectedMessage(thisUserId.toString())
-                val jsonMessage = json.serialize(discardMessage)
-                allConnections.sendToAll(jsonMessage)
                 allConnections -= thisConnection
+
+                allConnections.forEach { connection ->
+                    connection.publicKey?.let { publicKey ->
+                        val encryptedDiscardMessage = discardMessage.copy(
+                            text = discardMessage.text
+                        ).encodeContent(
+                            encoder = encoder,
+                            publicKey = publicKey
+                        )
+
+                        connection.sendMessage(encryptedDiscardMessage, json)
+                    }
+                }
             }
         }
     }

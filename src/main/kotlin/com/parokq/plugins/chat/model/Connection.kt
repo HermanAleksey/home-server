@@ -15,7 +15,6 @@ class Connection(
 
     suspend fun sendMessage(messageObject: MessageDataDto, json: Json) {
         val jsonString = json.serialize(messageObject)
-        println("Sending message: $jsonString")
         session.send(jsonString)
     }
 }
