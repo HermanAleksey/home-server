@@ -23,26 +23,6 @@ repositories {
     mavenCentral()
 }
 
-ktor {
-    docker {
-        jreVersion.set(io.ktor.plugin.features.JreVersion.JRE_17)
-
-        localImageName.set("home-docker-image")
-        imageTag.set("0.0.1-preview")
-
-        portMappings.set(listOf(
-            io.ktor.plugin.features.DockerPortMapping(
-                outsideDocker = 80,
-                insideDocker = 8080,
-                protocol = io.ktor.plugin.features.DockerPortMappingProtocol.TCP
-            )
-        ))
-    }
-    fatJar {
-        archiveFileName.set("fat.jar")
-    }
-}
-
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
@@ -53,16 +33,9 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation("io.ktor:ktor-server-websockets:$ktor_version")
-}
-
-
-task("do shit"){
-    //docker build .
-    //docker images -> take new
-    //docker run -e DATABASE_SERVER=jdbc:h2:mem:test -dp 8080:8580 36f1c123233a
-    println("im doing")
 }

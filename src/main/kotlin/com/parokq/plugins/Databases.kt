@@ -1,16 +1,21 @@
 package com.parokq.plugins
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import kotlinx.coroutines.*
-import java.sql.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
+import io.ktor.server.application.call
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.get
+import io.ktor.server.routing.put
+import io.ktor.server.routing.delete
+import io.ktor.server.routing.post
+import io.ktor.server.routing.routing
+import java.sql.DriverManager
+
 
 fun Application.configureDatabases() {
 
-    val dbConnection: Connection = connectToPostgres(embedded = true)
+    val dbConnection: java.sql.Connection = connectToPostgres(embedded = true)
     val cityService = CityService(dbConnection)
     routing {
         // Create city
@@ -71,7 +76,7 @@ fun Application.configureDatabases() {
  * @return [Connection] that represent connection to the database. Please, don't forget to close this connection when
  * your application shuts down by calling [Connection.close]
  * */
-fun Application.connectToPostgres(embedded: Boolean): Connection {
+fun Application.connectToPostgres(embedded: Boolean): java.sql.Connection {
     Class.forName("org.h2.Driver")
     if (embedded) {
         return DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "root", "")

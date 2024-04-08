@@ -1,17 +1,24 @@
 package com.parokq
 
-import com.parokq.plugins.*
+import com.parokq.plugins.chat.configureChatWSRouting
+import com.parokq.plugins.configureAuthenticationRouting
 import com.parokq.plugins.configureDatabases
-import io.ktor.serialization.gson.*
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.websocket.*
+import com.parokq.plugins.configurePictureRouting
+import com.parokq.plugins.configureSongRouting
+import io.ktor.serialization.gson.gson
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.websocket.WebSockets
+import io.ktor.server.websocket.pingPeriod
+import io.ktor.server.websocket.timeout
 import java.time.Duration
 
+
 fun main() {
-    embeddedServer(Netty, port = 8580, host = "0.0.0.0", module = Application::module)
+    embeddedServer(Netty, port = 8580, host = "192.168.100.22", module = Application::module)
         .start(wait = true)
 }
 
@@ -28,7 +35,7 @@ fun Application.module() {
         masking = false
     }
 
-    configureChartDataRouting()
+    configureChatWSRouting()
     configureDatabases()
     configureAuthenticationRouting()
     configurePictureRouting()
