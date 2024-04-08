@@ -20,24 +20,17 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import io.ktor.websocket.send
 import java.security.PrivateKey
-import java.util.Base64
 import java.util.Collections
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
-
 fun Application.configureChatWSRouting() {
     routing {
         val keyFactory = KeyFactory()
         val encoder = Encoder()
         val (publicServerKey, privateServerKey) = keyFactory.generateKeyPair()
-        // test logs
-        println("Server public key:\n${encoder.encryptPublicKey(publicServerKey)}")
-        val a = Base64.getEncoder().encodeToString(privateServerKey.encoded)
-        println("Server private key:\n${a}")
-        // test logs end
 
         val json = Json {
             prettyPrint = true
@@ -66,10 +59,7 @@ fun Application.configureChatWSRouting() {
                 for (frame in incoming) {
                     frame as? Frame.Text ?: continue
                     val text = frame.readText()
-                    // skip connect
-                    if (text.contains("Android Device Connected")) continue
 
-                    println("We got new message. text: ${text}")
                     val incomingObject = json.deserialize(text) ?: continue
                     println("Incoming object: $incomingObject, \n class:${incomingObject.javaClass.simpleName}")
 
@@ -162,7 +152,6 @@ private suspend fun tryConsumeClientMessage(
                 encoder = encoder,
                 privateKey = privateServerKey
             )
-            println("Received message encoded: $decodedMessageObject")
 
             // send message to all other users, encoded
             allConnections.forEach { connection ->
