@@ -1,4 +1,4 @@
-package com.parokq.plugins
+package com.parokq.plugins.picture
 
 import com.parokq.domain.file.FileSystemWorker
 import io.ktor.http.*
@@ -31,7 +31,7 @@ fun Application.configurePictureRouting() {
     routing {
         authenticate("myauth1") {
             post("/protected/photo") {
-                val contentLength = call.request.header(HttpHeaders.ContentLength)
+//                val contentLength = call.request.header(HttpHeaders.ContentLength)
                 val multipartData = call.receiveMultipart()
                 var fileName = ""
                 var fileDescription = ""

@@ -5,7 +5,7 @@ import io.ktor.client.statement.*
 import io.ktor.server.testing.*
 import kotlin.test.*
 import io.ktor.http.*
-import com.parokq.plugins.*
+import com.parokq.plugins.auth.configureAuthenticationRouting
 
 class ApplicationTest {
     @Test

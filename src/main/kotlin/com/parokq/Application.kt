@@ -1,10 +1,9 @@
 package com.parokq
 
+import com.parokq.plugins.auth.configureAuthenticationRouting
 import com.parokq.plugins.chat.configureChatWSRouting
-import com.parokq.plugins.configureAuthenticationRouting
-import com.parokq.plugins.configureDatabases
-import com.parokq.plugins.configurePictureRouting
-import com.parokq.plugins.configureSongRouting
+import com.parokq.plugins.music.configureSongRouting
+import com.parokq.plugins.picture.configurePictureRouting
 import io.ktor.serialization.gson.gson
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -36,7 +35,7 @@ fun Application.module() {
     }
 
     configureChatWSRouting()
-    configureDatabases()
+//    configureDatabases()
     configureAuthenticationRouting()
     configurePictureRouting()
     configureSongRouting()

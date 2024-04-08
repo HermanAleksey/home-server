@@ -1,12 +1,19 @@
-package com.parokq.plugins
+package com.parokq.plugins.auth
 
-import com.parokq.domain.entity.authentication.*
-import io.ktor.serialization.gson.*
-import io.ktor.server.routing.*
-import io.ktor.server.response.*
-import io.ktor.server.application.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.*
+import com.parokq.domain.entity.authentication.InfoResponse
+import com.parokq.domain.entity.authentication.LoginRequest
+import com.parokq.domain.entity.authentication.LoginResponse
+import com.parokq.domain.entity.authentication.RegistrationRequest
+import com.parokq.domain.entity.authentication.ResetPasswordRequest
+import com.parokq.domain.entity.authentication.RestorePasswordRequest
+import com.parokq.domain.entity.authentication.VerifyCodeRequest
+import io.ktor.server.application.Application
+import io.ktor.server.application.call
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.routing
 
 fun Application.configureAuthenticationRouting() {
     routing {

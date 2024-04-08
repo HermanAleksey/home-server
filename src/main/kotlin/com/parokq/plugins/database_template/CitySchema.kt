@@ -1,9 +1,10 @@
-package com.parokq.plugins
+package com.parokq.plugins.database_template
 
-import kotlinx.coroutines.*
-import kotlinx.serialization.Serializable
 import java.sql.Connection
 import java.sql.Statement
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class City(val name: String, val population: Int)
@@ -22,8 +23,6 @@ class CityService(private val connection: Connection) {
         val statement = connection.createStatement()
         statement.executeUpdate(CREATE_TABLE_CITIES)
     }
-
-    private var newCityId = 0
 
     // Create new city
     suspend fun create(city: City): Int = withContext(Dispatchers.IO) {

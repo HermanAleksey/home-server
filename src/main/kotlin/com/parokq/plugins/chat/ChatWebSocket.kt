@@ -2,22 +2,18 @@ package com.parokq.plugins.chat
 
 import com.parokq.plugins.chat.UserIdCounter.generateUserId
 import com.parokq.plugins.chat.ext.deserialize
-import com.parokq.plugins.chat.ext.serialize
 import com.parokq.plugins.chat.model.Connection
+import com.parokq.plugins.chat.model.MessageFactory
 import com.parokq.plugins.chat.model.dto.MessageDataDto
 import com.parokq.plugins.chat.model.dto.PublicKeyDto
 import com.parokq.plugins.chat.model.dto.SerializableDto
 import com.parokq.plugins.chat.model.dto.decodeContent
 import com.parokq.plugins.chat.model.dto.encodeContent
-import com.parokq.plugins.chat.templates.getDisconnectedMessage
-import com.parokq.plugins.chat.templates.getGreetingsMessage
-import com.parokq.plugins.chat.templates.getPublicKeyMessage
 import io.ktor.server.application.Application
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
-import io.ktor.websocket.send
 import java.security.PrivateKey
 import java.util.Collections
 import kotlinx.serialization.json.Json
@@ -29,6 +25,7 @@ fun Application.configureChatWSRouting() {
     routing {
         val keyFactory = KeyFactory()
         val encoder = Encoder()
+        val messageFactory = MessageFactory(encoder)
         val (publicServerKey, privateServerKey) = keyFactory.generateKeyPair()
 
         val json = Json {
@@ -49,11 +46,11 @@ fun Application.configureChatWSRouting() {
             allConnections += thisConnection
 
             try {
-                sendServerPublicKeyMessage(
-                    serverPublicKeyString = encoder.encryptPublicKey(publicServerKey),
-                    connection = thisConnection,
-                    json = json
+                val publicKeyMessage = messageFactory.createPublicKeyMessage(
+                    publicKey = publicServerKey,
+                    userName = thisConnection.userId.toString()
                 )
+                thisConnection.sendMessage(publicKeyMessage, json = json)
 
                 for (frame in incoming) {
                     frame as? Frame.Text ?: continue
@@ -68,6 +65,7 @@ fun Application.configureChatWSRouting() {
                             clientConnection = thisConnection,
                             json = json,
                             encoder = encoder,
+                            messageFactory = messageFactory
                         )
                     } else {
                         tryConsumeClientMessage(
@@ -84,63 +82,43 @@ fun Application.configureChatWSRouting() {
                 e.printStackTrace()
             } finally {
                 println("Disconnecting user: $thisUserId")
-                val discardMessage = getDisconnectedMessage(thisUserId.toString())
+                // disconnect user and notify others
                 allConnections -= thisConnection
 
                 allConnections.forEach { connection ->
-                    connection.publicKey?.let { publicKey ->
-                        val encryptedDiscardMessage = discardMessage.copy(
-                            text = discardMessage.text
-                        ).encodeContent(
-                            encoder = encoder,
-                            publicKey = publicKey
-                        )
-
-                        connection.sendMessage(encryptedDiscardMessage, json)
-                    }
+                    val pbk = connection.publicKey ?: return@forEach
+                    val disconnectedMessage = messageFactory.createDisconnectedMessage(
+                        userName = thisUserId.toString(),
+                        connectionPublicKey = pbk
+                    )
+                    connection.sendMessage(disconnectedMessage, json)
                 }
             }
         }
     }
 }
 
-private suspend fun sendServerPublicKeyMessage(
-    serverPublicKeyString: String,
-    connection: Connection,
-    json: Json,
-) {
-    val publicKeyMessage = getPublicKeyMessage(
-        publicKey = serverPublicKeyString,
-        userName = connection.userId.toString()
-    )
-    val serialized = json.serialize(publicKeyMessage)
-    connection.session.send(serialized)
-}
-
 private suspend fun tryProcessClientPublicKey(
     incomingObject: SerializableDto,
     clientConnection: Connection,
     json: Json,
-    encoder: Encoder = Encoder(),
+    encoder: Encoder,
+    messageFactory: MessageFactory,
 ) {
     // if public key of user is empty - expect that message is PublicKeyDto, not encrypted
     when (incomingObject) {
         is PublicKeyDto -> {
             val userPublicKey = encoder.decryptPublicKey(incomingObject.publicKey)
-            println(
-                "Client public key received:" +
-                        "encoded: ${userPublicKey.encoded}" +
-                        "casual: $userPublicKey"
-            )
             clientConnection.publicKey = userPublicKey
 
             // send greetings message
-            val helloMessage = getGreetingsMessage(clientConnection.userId.toString())
-            val helloWithEncodedContent = helloMessage.encodeContent(
-                encoder = encoder,
-                publicKey = userPublicKey
-            )
-            clientConnection.sendMessage(helloWithEncodedContent, json)
+            val helloMessage = messageFactory
+                .createGreetingsMessage(clientConnection.userId.toString())
+                .encodeContent(
+                    encoder = encoder,
+                    publicKey = userPublicKey
+                )
+            clientConnection.sendMessage(helloMessage, json)
         }
 
         else -> {
@@ -165,13 +143,13 @@ private suspend fun tryConsumeClientMessage(
 
             // send message to all other users, encoded
             allConnections.forEach { connection ->
-                connection.publicKey?.let { publicKey ->
-                    val messageEncodedForUser = decodedMessageObject.encodeContent(
-                        encoder = encoder,
-                        publicKey = publicKey
-                    )
-                    connection.sendMessage(messageEncodedForUser, json)
-                }
+                val pbk = connection.publicKey ?: return@forEach
+
+                val messageEncodedForUser = decodedMessageObject.encodeContent(
+                    encoder = encoder,
+                    publicKey = pbk
+                )
+                connection.sendMessage(messageEncodedForUser, json)
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.parokq.plugins
+package com.parokq.plugins.database_template
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
